@@ -1,0 +1,172 @@
+.date-range {
+	width: 332px;
+	margin: 100px;
+
+	.date-range-header {
+		display: flex;
+
+		.date-range-header-item {
+			flex: 1;
+			border: 1px solid #108fcf;
+			border-right: 0;
+			padding: 8px 16px;
+			font-size: 16px;
+			color: #a19f9f;
+
+			&:nth-child(1) {
+				border-radius: 4px 0 0 0;
+			}
+
+			&:nth-last-child(1) {
+				border-right: 1px solid #108fcf;
+				border-radius: 0 4px 0 0;
+			}
+
+			&.active {
+				background: #108fcf;
+				color: white;
+				font-weight: 700;
+			}
+		}
+	}
+
+	.date-range-control {
+		position: relative;
+		border: 1px solid #108fcf;
+		border-top: 0;
+		padding: 8px 16px;
+
+		.date-range-control-value {
+			font-size: 16px;
+			color: #042d41;
+		}
+
+		.date-range-control-icon {
+			position: absolute;
+			top: 8px;
+			right: 16px;
+			width: 20px;
+			height: 20px;
+			background: url('../images/calendar.png');
+			background-size: contain;
+		}
+	}
+
+	.date-range-wrapper {
+		border: 1px solid #108fcf;
+		border-top: 0;
+		border-radius: 0 0 4px 4px;
+		padding: 24px;
+
+		.date-range-wrapper-header {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 4px;
+
+			.date-range-wrapper-header-value {
+				font-weight: 600;
+			}
+
+			.date-range-wrapper-header-btn {
+				width: 20px;
+				height: 20px;
+
+				&.btn-pre {
+					background: url('../images/btn-pre.png');
+					background-size: contain;
+				}
+
+				&.btn-next {
+					background: url('../images/btn-next.png');
+					background-size: contain;
+				}
+			}
+
+			.date-range-wrapper-header-value {
+				display: flex;
+				gap: 16px;
+			}
+		}
+
+		.date-range-calendar {
+			width: 100%;
+			text-align: center;
+
+			.date-range-calendar-weekdays {
+				.date-range-calendar-weekdays-item {
+					display: inline-block;
+					padding-left: 8px;
+					padding-bottom: 8px;
+
+					.date-range-calendar-weekdays-item-value {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						width: 32px;
+						height: 32px;
+						font-size: 13px;
+					}
+
+					&:nth-child(1) {
+						padding-left: 0;
+					}
+				}
+			}
+
+			.date-range-calendar-week {
+				cursor: pointer;
+
+				.date-range-calendar-day {
+					display: inline-block;
+					background: white;
+					border-bottom: 8px solid white;
+					padding-left: 8px;
+
+					.date-range-calendar-day-value {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						width: 32px;
+						height: 32px;
+						line-height: 24px;
+						font-size: 13px;
+						color: #042d41;
+					}
+
+					&.active {
+						background: #e2f2f9;
+					}
+					&.start-day {
+						margin-left: 8px;
+						border: 0px solid;
+						border-radius: 4px 0 0 4px;
+						background: #e2f2f9;
+						padding-left: 0;
+
+						.date-range-calendar-day-value {
+							border-radius: 4px;
+							background: #108fcf;
+							color: white;
+							font-weight: 700;
+						}
+					}
+					&.end-day {
+						background: #e2f2f9;
+						border-radius: 0 4px 4px 0;
+						.date-range-calendar-day-value {
+							border-radius: 4px;
+							background: #108fcf;
+							color: white;
+							font-weight: 700;
+						}
+					}
+					&:nth-child(1) {
+						padding-left: 0;
+					}
+				}
+			}
+		}
+	}
+}
