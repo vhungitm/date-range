@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './scss/_date-range.scss';
 
 export const DateRange = () => {
@@ -33,7 +33,36 @@ export const DateRange = () => {
 		}
 	];
 
-	console.log(new Date('2022-08-26').getDay());
+	const [calendar, setCalendar] = useState();
+
+	useEffect(() => {
+		if (!calendar) {
+			const now = new Date();
+			const nowYear = now.getFullYear();
+			const nowMonth = now.getMonth();
+			const nowDate = now.getDate();
+			const nowDay = now.getDay();
+			console.log(nowDay);
+
+			const endDate = new Date(nowYear, nowMonth, 0);
+
+			let newCalendar = [];
+
+			console.log(new Date(nowYear, nowMonth, 1).getDay());
+
+			for (
+				let i = 2 - new Date(nowYear, nowMonth, 1).getDay();
+				i < 7 - -endDate.getDay() + endDate.getDate();
+				i++
+			) {
+				newCalendar = [...newCalendar, new Date(nowYear, nowMonth, i)];
+			}
+			setCalendar(newCalendar);
+		}
+	}, []);
+
+	console.log(calendar);
+
 	return (
 		<div className="date-range">
 			<div className="date-range-header">
@@ -73,27 +102,14 @@ export const DateRange = () => {
 					</div>
 
 					<div className="date-range-calendar-week">
-						<div className="date-range-calendar-day">
-							<div className="date-range-calendar-day-value">1</div>
-						</div>
-						<div className="date-range-calendar-day start-day">
-							<div className="date-range-calendar-day-value  active">2</div>
-						</div>
-						<div className="date-range-calendar-day active">
-							<div className="date-range-calendar-day-value  active">3</div>
-						</div>
-						<div className="date-range-calendar-day end-day">
-							<div className="date-range-calendar-day-value">4</div>
-						</div>
-						<div className="date-range-calendar-day">
-							<div className="date-range-calendar-day-value">5</div>
-						</div>
-						<div className="date-range-calendar-day">
-							<div className="date-range-calendar-day-value">6</div>
-						</div>
-						<div className="date-range-calendar-day">
-							<div className="date-range-calendar-day-value">7</div>
-						</div>
+						{calendar &&
+							calendar.map(item => (
+								<div key={item} className="date-range-calendar-day">
+									<div className="date-range-calendar-day-value">
+										{item.getDate()}
+									</div>
+								</div>
+							))}
 					</div>
 				</div>
 			</div>
