@@ -1,24 +1,27 @@
 .date-range {
+	position: relative;
 	width: 332px;
 	margin: 100px;
 
+	/* Date range header */
 	.date-range-header {
 		display: flex;
 
 		.date-range-header-item {
 			flex: 1;
-			border: 1px solid #108fcf;
+			border: 1px solid #d9d6d6;
 			border-right: 0;
 			padding: 8px 16px;
 			font-size: 16px;
 			color: #a19f9f;
+			cursor: pointer;
 
 			&:nth-child(1) {
 				border-radius: 4px 0 0 0;
 			}
 
 			&:nth-last-child(1) {
-				border-right: 1px solid #108fcf;
+				border-right: 1px solid #d9d6d6;
 				border-radius: 0 4px 0 0;
 			}
 
@@ -30,11 +33,14 @@
 		}
 	}
 
+	/* Date range control*/
 	.date-range-control {
 		position: relative;
-		border: 1px solid #108fcf;
+		border-radius: 0 0 4px 4px;
+		border: 1px solid #d9d6d6;
 		border-top: 0;
 		padding: 8px 16px;
+		cursor: pointer;
 
 		.date-range-control-value {
 			font-size: 16px;
@@ -52,7 +58,10 @@
 		}
 	}
 
+	/* Date range wrapper*/
 	.date-range-wrapper {
+		position: absolute;
+		display: none;
 		border: 1px solid #108fcf;
 		border-top: 0;
 		border-radius: 0 0 4px 4px;
@@ -76,11 +85,13 @@
 				&.btn-pre {
 					background: url('../images/btn-pre.png');
 					background-size: contain;
+					cursor: pointer;
 				}
 
 				&.btn-next {
 					background: url('../images/btn-next.png');
 					background-size: contain;
+					cursor: pointer;
 				}
 			}
 
@@ -91,9 +102,11 @@
 		}
 
 		.date-range-calendar {
+			display: flex;
 			width: 100%;
 			text-align: center;
 
+			/* Date range calendar weekdays */
 			.date-range-calendar-weekdays {
 				.date-range-calendar-weekdays-item {
 					display: inline-block;
@@ -115,7 +128,32 @@
 				}
 			}
 
-			.date-range-calendar-week {
+			/* Date range calendar week */
+			.date-range-calendar-weeks {
+				display: inline-block;
+				margin-top: 40px;
+				margin-bottom: 8px;
+				border-right: 0.5px solid #a19f9f3d;
+
+				.date-range-calendar-weeks-item {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 60px;
+					height: 32px;
+					line-height: 24px;
+					border-bottom: 8px solid white;
+					font-size: 13px;
+					color: #042d41;
+					cursor: pointer;
+
+					&:nth-last-child(1) {
+						border-bottom: 0;
+					}
+				}
+			}
+
+			.date-range-calendar-days {
 				cursor: pointer;
 
 				.date-range-calendar-day {
@@ -135,10 +173,7 @@
 						color: #042d41;
 					}
 
-					&.active {
-						background: #e2f2f9;
-					}
-					&.start-day {
+					&.start-date {
 						margin-left: 8px;
 						border: 0px solid;
 						border-radius: 4px 0 0 4px;
@@ -152,7 +187,7 @@
 							font-weight: 700;
 						}
 					}
-					&.end-day {
+					&.end-date {
 						background: #e2f2f9;
 						border-radius: 0 4px 4px 0;
 						.date-range-calendar-day-value {
@@ -162,11 +197,57 @@
 							font-weight: 700;
 						}
 					}
-					&:nth-child(1) {
+					&.start-week {
 						padding-left: 0;
+						margin-left: 0;
+						&.limit-date {
+							margin-left: 0;
+						}
+					}
+					&.active {
+						background: #e2f2f9;
+					}
+					&.disable {
+						opacity: 0.4;
+					}
+					&.limit-date {
+						margin-left: 8px;
+						border: 0px solid;
+						border-radius: 4px 0 0 4px;
+						background: #e2f2f9;
+						padding-left: 0;
+
+						.date-range-calendar-day-value {
+							border-radius: 4px;
+							background: #108fcf;
+							color: white;
+							font-weight: 700;
+						}
 					}
 				}
 			}
+
+			/* Date range calendar week type */
+			&.week {
+				width: 334px;
+			}
+		}
+	}
+
+	/* Date range show */
+	&.show-calendar {
+		.date-range-header-item {
+			border-color: #108fcf;
+			&:nth-last-child(1) {
+				border-color: #108fcf;
+			}
+		}
+		.date-range-control {
+			border-color: #108fcf;
+			border-radius: 0;
+		}
+		.date-range-wrapper {
+			display: block;
 		}
 	}
 }
