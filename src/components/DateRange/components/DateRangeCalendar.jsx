@@ -13,7 +13,6 @@ export const DateRangeCalendar = props => {
 			: type === 2
 			? 'date-range-calendar month'
 			: 'date-range-calendar year';
-
 	// Return JSX
 	return (
 		<div className={className}>
