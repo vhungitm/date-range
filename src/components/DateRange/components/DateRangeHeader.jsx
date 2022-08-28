@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const DateRangeHeader = props => {
-	const { types, type, setType } = props;
+	const { types, type, handleChangeType } = props;
 
 	return (
 		<div className="date-range-header">
@@ -13,7 +13,7 @@ export const DateRangeHeader = props => {
 							? 'date-range-header-item active'
 							: 'date-range-header-item'
 					}
-					onClick={() => setType(item.id)}
+					onClick={() => handleChangeType(item.id)}
 				>
 					{item.title}
 				</div>

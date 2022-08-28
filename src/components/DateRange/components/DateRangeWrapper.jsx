@@ -1,33 +1,44 @@
 import React from 'react';
 import { DateRangeCalendar } from './DateRangeCalendar';
+import { DateRangeMonth } from './DateRangeMonth';
 import { DateRangeWrapperHeader } from './DateRangeWrapperHeader';
+import { DateRangeYear } from './DateRangeYear';
 
 export const DateRangeWrapper = props => {
 	const {
 		type,
+		value,
 		calendar,
 		calendarDate,
+		months,
+		weeks,
 		weekdays,
 		handleChangeValue,
-		handleChangeMonth
+		handleChangeCalendar
 	} = props;
 
 	return (
 		<div className="date-range-wrapper">
 			<DateRangeWrapperHeader
+				type={type}
 				calendarDate={calendarDate}
-				handleChangeMonth={handleChangeMonth}
+				handleChangeCalendar={handleChangeCalendar}
 			/>
 
-			{/* Date range calendar */}
 			{type === 0 || type === 1 ? (
 				<DateRangeCalendar
 					type={type}
+					value={value}
+					weeks={weeks}
 					weekdays={weekdays}
 					calendar={calendar}
 					handleChangeValue={handleChangeValue}
 				/>
-			) : null}
+			) : type === 2 ? (
+				<DateRangeMonth months={months} handleChangeValue={handleChangeValue} />
+			) : (
+				<DateRangeYear value={value} handleChangeValue={handleChangeValue} />
+			)}
 		</div>
 	);
 };

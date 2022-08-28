@@ -1,8 +1,8 @@
-import { format, getWeek, getWeekYear } from 'date-fns';
+import { isSameDay } from 'date-fns';
 import React from 'react';
 
 export const DateRangeCalendar = props => {
-	const { type, weekdays, calendar, handleChangeValue } = props;
+	const { type, weeks, weekdays, calendar, handleChangeValue } = props;
 
 	// Class name
 	const className =
@@ -13,24 +13,22 @@ export const DateRangeCalendar = props => {
 			: type === 2
 			? 'date-range-calendar month'
 			: 'date-range-calendar year';
+
 	// Return JSX
 	return (
 		<div className={className}>
 			{/* Calendar weeks */}
 			{type === 1 && (
 				<div className="date-range-calendar-weeks">
-					{calendar.map(
-						(item, id) =>
-							id % 7 === 0 && (
-								<div
-									className="date-range-calendar-weeks-item"
-									key={id}
-									onClick={() => handleChangeValue(item.value, 1)}
-								>
-									Tuần {getWeek(new Date(item.value), 'yyyy-MM-dd')}
-								</div>
-							)
-					)}
+					{weeks.map((item, id) => (
+						<div
+							key={id}
+							className={`date-range-calendar-weeks-item ${item.type}`}
+							onClick={() => handleChangeValue(item.value)}
+						>
+							{item.title}
+						</div>
+					))}
 				</div>
 			)}
 
@@ -49,11 +47,12 @@ export const DateRangeCalendar = props => {
 
 				{calendar.map((item, id) => {
 					// Update class name
-					let className = 'date-range-calendar-day';
-
-					if (id === 0 || id % 7 === 0) className = `${className} start-week`;
-					if ((id + 1) % 7 === 0) className = `${className} end-week`;
-					className = `${className} ${item.type}`;
+					let className =
+						id % 7 === 0
+							? `date-range-calendar-day start-week ${item.type}`
+							: (id + 1) % 7 === 0
+							? `date-range-calendar-day end-week ${item.type}`
+							: `date-range-calendar-day ${item.type}`;
 
 					// Return JSX
 					return (
@@ -62,6 +61,10 @@ export const DateRangeCalendar = props => {
 								className="date-range-calendar-day-value"
 								onClick={() => handleChangeValue(item.value)}
 							>
+								{isSameDay(item.value, new Date()) && (
+									<div className="date-range-now" />
+								)}
+
 								{item.value.getDate()}
 							</div>
 						</div>

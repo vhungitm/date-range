@@ -61,10 +61,13 @@
 	/* Date range wrapper*/
 	.date-range-wrapper {
 		position: absolute;
+		z-index: 101;
 		display: none;
+		width: calc(100% - 50px);
 		border: 1px solid #108fcf;
 		border-top: 0;
 		border-radius: 0 0 4px 4px;
+		background: white;
 		padding: 24px;
 
 		.date-range-wrapper-header {
@@ -73,10 +76,7 @@
 			align-items: center;
 			gap: 8px;
 			margin-bottom: 4px;
-
-			.date-range-wrapper-header-value {
-				font-weight: 600;
-			}
+			font-weight: 600;
 
 			.date-range-wrapper-header-btn {
 				width: 20px;
@@ -101,9 +101,9 @@
 			}
 		}
 
+		/* Date range calendar */
 		.date-range-calendar {
 			display: flex;
-			width: 100%;
 			text-align: center;
 
 			/* Date range calendar weekdays */
@@ -133,7 +133,7 @@
 				display: inline-block;
 				margin-top: 40px;
 				margin-bottom: 8px;
-				border-right: 0.5px solid #a19f9f3d;
+				border-right: 0.5px solid #a19f9f;
 
 				.date-range-calendar-weeks-item {
 					display: flex;
@@ -142,13 +142,25 @@
 					width: 60px;
 					height: 32px;
 					line-height: 24px;
-					border-bottom: 8px solid white;
+					margin-bottom: 8px;
 					font-size: 13px;
 					color: #042d41;
 					cursor: pointer;
 
+					&.start-week,
+					&.end-week {
+						border-radius: 4px;
+						background: #108fcf;
+						color: white;
+						font-weight: 600;
+					}
+
+					&.active {
+						background: #e2f2f9;
+					}
+
 					&:nth-last-child(1) {
-						border-bottom: 0;
+						margin-bottom: 0;
 					}
 				}
 			}
@@ -163,6 +175,7 @@
 					padding-left: 8px;
 
 					.date-range-calendar-day-value {
+						position: relative;
 						display: flex;
 						align-items: center;
 						justify-content: center;
@@ -171,6 +184,16 @@
 						line-height: 24px;
 						font-size: 13px;
 						color: #042d41;
+
+						.date-range-now {
+							position: absolute;
+							top: 2px;
+							left: 14px;
+							width: 4px;
+							height: 4px;
+							border-radius: 100%;
+							background: #108fcf;
+						}
 					}
 
 					&.start-date {
@@ -185,31 +208,12 @@
 							background: #108fcf;
 							color: white;
 							font-weight: 700;
+							.date-range-now {
+								background: white;
+							}
 						}
 					}
-					&.end-date {
-						background: #e2f2f9;
-						border-radius: 0 4px 4px 0;
-						.date-range-calendar-day-value {
-							border-radius: 4px;
-							background: #108fcf;
-							color: white;
-							font-weight: 700;
-						}
-					}
-					&.start-week {
-						padding-left: 0;
-						margin-left: 0;
-						&.limit-date {
-							margin-left: 0;
-						}
-					}
-					&.active {
-						background: #e2f2f9;
-					}
-					&.disable {
-						opacity: 0.4;
-					}
+
 					&.limit-date {
 						margin-left: 8px;
 						border: 0px solid;
@@ -222,21 +226,171 @@
 							background: #108fcf;
 							color: white;
 							font-weight: 700;
+
+							.date-range-now {
+								background: white;
+							}
 						}
+					}
+
+					&.end-date {
+						background: #e2f2f9;
+						border-radius: 0 4px 4px 0;
+						.date-range-calendar-day-value {
+							border-radius: 4px;
+							background: #108fcf;
+							color: white;
+							font-weight: 700;
+
+							.date-range-now {
+								background: white;
+							}
+						}
+					}
+
+					&.start-week {
+						padding-left: 0;
+						margin-left: 0;
+						&.limit-date {
+							margin-left: 0;
+						}
+					}
+
+					&.active {
+						background: #e2f2f9;
+					}
+
+					&.disable {
+						opacity: 0.4;
 					}
 				}
 			}
 
 			/* Date range calendar week type */
 			&.week {
-				width: 334px;
+				display: grid;
+				grid-template-columns: 61px 223px;
+				.date-range-calendar-days {
+					.date-range-calendar-weekdays {
+						.date-range-calendar-weekdays-item {
+							padding-left: 0;
+
+							&:nth-child(1) {
+								.date-range-calendar-weekdays-item-value {
+									width: 31px;
+								}
+							}
+						}
+					}
+
+					.date-range-calendar-day {
+						padding-left: 0;
+						.date-range-calendar-day-value {
+						}
+						&.start-week {
+							width: 31px;
+						}
+					}
+				}
+			}
+		}
+
+		/* Date range months */
+		.date-range-months {
+			margin-top: 24px;
+			font-size: 13px;
+
+			.date-range-month {
+				display: inline-block;
+				padding-left: 31px;
+				margin-bottom: 8px;
+				cursor: pointer;
+
+				.date-range-month-value {
+					position: relative;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 73px;
+					height: 32px;
+
+					.date-range-now {
+						position: absolute;
+						top: 2px;
+						left: calc(50% - 2px);
+						width: 4px;
+						height: 4px;
+						border-radius: 100%;
+						background: #108fcf;
+					}
+				}
+
+				&.active {
+					background: #e2f2f9;
+				}
+
+				&.start-month {
+					margin-left: 31px;
+					border-radius: 4px 0 0 4px;
+					background: #e2f2f9;
+					padding-left: 0;
+
+					.date-range-month-value {
+						border-radius: 4px;
+						background: #108fcf;
+						color: white;
+						font-weight: 700;
+
+						.date-range-now {
+							background: white;
+						}
+					}
+				}
+
+				&.end-month {
+					border-radius: 0 4px 4px 0;
+					background: #e2f2f9;
+
+					.date-range-month-value {
+						border-radius: 4px;
+						background: #108fcf;
+						color: white;
+						font-weight: 700;
+
+						.date-range-now {
+							background: white;
+						}
+					}
+				}
+
+				&.limit-month {
+					.date-range-month-value {
+						border-radius: 4px;
+						background: #108fcf;
+						color: white;
+						font-weight: 700;
+
+						.date-range-now {
+							background: white;
+						}
+					}
+				}
+
+				&:nth-child(1),
+				&:nth-child(4),
+				&:nth-child(7),
+				&:nth-child(10) {
+					margin-left: 0;
+					padding-left: 0;
+				}
 			}
 		}
 	}
 
 	/* Date range show */
-	&.show-calendar {
+	&.show {
 		.date-range-header-item {
+			z-index: 101;
 			border-color: #108fcf;
 			&:nth-last-child(1) {
 				border-color: #108fcf;
@@ -249,5 +403,19 @@
 		.date-range-wrapper {
 			display: block;
 		}
+	}
+}
+.date-range-calendar-over {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 100;
+	display: none;
+	width: 100vw;
+	height: 100vh;
+	background: transparent;
+
+	&.show {
+		display: block;
 	}
 }
