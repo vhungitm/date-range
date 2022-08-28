@@ -27,7 +27,7 @@ export const DateRangeControl = props => {
 	const monthValueJSX = (
 		<div className="date-range-control-value">
 			{'Tháng '}
-			{value.startDate.getMonth() + 1}.{getYear(value.endDate)}
+			{value.startDate.getMonth() + 1}.{getYear(value.startDate)}
 			{' đến tháng '}
 			{value.endDate.getMonth() + 1}.{getYear(value.endDate)}
 		</div>

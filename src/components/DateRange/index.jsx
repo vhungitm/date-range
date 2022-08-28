@@ -11,7 +11,7 @@ import {
 	sub
 } from 'date-fns';
 import { isLastDayOfMonth } from 'date-fns/esm';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
 	DateRangeControl,
 	DateRangeHeader,
@@ -23,16 +23,15 @@ export const DateRange = props => {
 	// Props
 	const { value: valueProp, setValue: setValueProp } = props;
 
-	// Type
-	const types = [
-		{ id: 0, title: 'Ngày' },
-		{ id: 1, title: 'Tuần' },
-		{ id: 2, title: 'Tháng' },
-		{ id: 3, title: 'Năm' }
-	];
-	const [type, setType] = useState(0);
-
-	// Data
+	// Value
+	const [value, setValue] = useState({
+		startDate: valueProp?.startDate || new Date(),
+		endDate: valueProp?.endDate || new Date()
+	});
+	const [calendarDate, setCalendarDate] = useState(value.startDate);
+	const [calendar, setCalendar] = useState([]);
+	const [showWrapper, setShowWrapper] = useState(false);
+	const [typeValueChange, setTypeValueChange] = useState('startDate');
 	const [months, setMonths] = useState([]);
 	const [weeks, setWeeks] = useState([]);
 	const weekdays = [
@@ -44,6 +43,13 @@ export const DateRange = props => {
 		{ name: 'saturday', title: 'T7' },
 		{ name: 'sunday', title: 'CN' }
 	];
+	const types = [
+		{ id: 0, title: 'Ngày' },
+		{ id: 1, title: 'Tuần' },
+		{ id: 2, title: 'Tháng' },
+		{ id: 3, title: 'Năm' }
+	];
+	const [type, setType] = useState(0);
 
 	// Handle change type
 	const handleChangeType = newType => {
@@ -52,24 +58,13 @@ export const DateRange = props => {
 		setCalendarDate(value.startDate);
 	};
 
-	// Value
-	const [value, setValue] = useState({
-		startDate: valueProp?.startDate || new Date(),
-		endDate: valueProp?.endDate || new Date()
-	});
-
-	// Calendar
-	const [calendarDate, setCalendarDate] = useState(value.startDate);
-	const [calendar, setCalendar] = useState([]);
-	const [showWrapper, setShowWrapper] = useState(false);
-
 	// Handle close wrapper calendar
 	const handleCloseWrapper = () => {
 		setTypeValueChange('startDate');
 		setShowWrapper(false);
 	};
 
-	// Effect update calendar
+	// Effect update wrapper content
 	useEffect(() => {
 		// Check start date end end date
 		if (value.startDate - value.endDate > 0) {
@@ -77,56 +72,116 @@ export const DateRange = props => {
 				startDate: value.endDate,
 				endDate: value.startDate
 			});
+
 			return;
 		}
 
-		if (type === 1) {
-			// Check start date value for week type
-			const startDateWeekday = getDay(value.startDate);
-			if (type === 1 && startDateWeekday !== 1) {
-				setValue({
-					startDate: sub(value.startDate, {
-						days: startDateWeekday === 0 ? 6 : startDateWeekday - 1
-					}),
-					endDate: value.endDate
-				});
+		if (type === 0 || type === 1) {
+			if (type === 1) {
+				// Check start date value for week type
+				const startDateWeekday = getDay(value.startDate);
+				if (type === 1 && startDateWeekday !== 1) {
+					setValue({
+						startDate: sub(value.startDate, {
+							days: startDateWeekday === 0 ? 6 : startDateWeekday - 1
+						}),
+						endDate: value.endDate
+					});
+
+					return;
+				}
+
+				// Check end date value for week type
+				const endDateWeekday = getDay(value.endDate);
+				if (type === 1 && endDateWeekday !== 0) {
+					setValue({
+						startDate: value.startDate,
+						endDate: add(value.endDate, {
+							days: 7 - endDateWeekday
+						})
+					});
+
+					return;
+				}
 			}
 
-			// Check end date value for week type
-			const endDateWeekday = getDay(value.endDate);
-			if (type === 1 && endDateWeekday !== 0) {
-				setValue({
-					startDate: value.startDate,
-					endDate: add(value.endDate, {
-						days: 7 - endDateWeekday
-					})
-				});
+			// Calendar date min
+			let calendarDateMin = set(calendarDate, { date: 1 }).getDay();
+			calendarDateMin = calendarDateMin === 0 ? -5 : 2 - calendarDateMin;
+
+			// Calendar date max
+			const endDateOfMonth = lastDayOfMonth(calendarDate);
+			let calendarDateMax =
+				endDateOfMonth.getDay() !== 0
+					? endDateOfMonth.getDate() - endDateOfMonth.getDay() + 7
+					: endDateOfMonth.getDate();
+
+			// New data
+			let newCalendar = [];
+			let newWeeks = [];
+
+			// Update calendar
+			for (let i = calendarDateMin; i <= calendarDateMax; i++) {
+				// New day value
+				let newDayValue = set(calendarDate, { date: i });
+
+				// Update weeks
+				if (getDay(newDayValue) === 1) {
+					const newWeekValueType =
+						isSameDay(newDayValue, value.startDate) &&
+						isSameDay(newDayValue, value.endDate)
+							? 'limit-week'
+							: isSameDay(newDayValue, value.startDate)
+							? 'start-week'
+							: isSameDay(add(newDayValue, { days: 6 }), value.endDate)
+							? 'end-week'
+							: newDayValue - value.startDate > 0 &&
+							  newDayValue - value.endDate < 0
+							? 'active'
+							: '';
+
+					const newWeekValueTitle = getWeek(newDayValue, { weekStartsOn: 1 });
+
+					newWeeks = [
+						...newWeeks,
+						{
+							type: newWeekValueType,
+							title: `Tuần ${newWeekValueTitle}`,
+							value: newDayValue
+						}
+					];
+				}
+
+				// New day type
+				let newDayType = i < 1 || i > endDateOfMonth.getDate() ? 'disable' : '';
+				newDayType =
+					type === 0
+						? isSameDay(newDayValue, value.startDate) &&
+						  isSameDay(newDayValue, value.endDate)
+							? 'limit-date'
+							: isSameDay(newDayValue, value.startDate)
+							? 'start-date'
+							: isSameDay(newDayValue, value.endDate)
+							? 'end-date'
+							: newDayValue - value.startDate > 0 &&
+							  newDayValue - value.endDate < 0
+							? 'active'
+							: newDayType
+						: newDayValue - value.startDate >= 0 &&
+						  newDayValue - value.endDate <= 0
+						? 'active'
+						: newDayType;
+
+				newCalendar = [
+					...newCalendar,
+					{ type: newDayType, value: newDayValue }
+				];
 			}
+
+			setCalendar(newCalendar);
+			setWeeks(newWeeks);
 		}
 
-		if (type === 3) {
-			// Check start date for year type
-			if (
-				!isSameDay(value.startDate, set(value.startDate, { month: 0, date: 1 }))
-			) {
-				setValue({
-					startDate: set(value.startDate, { month: 0, date: 1 }),
-					endDate: value.endDate
-				});
-
-				return;
-			}
-
-			// Check end date for year type
-			if (!isSameDay(value.endDate, lastDayOfYear(value.endDate))) {
-				setValue({
-					startDate: value.startDate,
-					endDate: lastDayOfYear(value.endDate)
-				});
-			}
-		}
-
-		// Update months
 		if (type === 2) {
 			// Check start date for month type
 			if (value.startDate.getDate() !== 1) {
@@ -180,83 +235,33 @@ export const DateRange = props => {
 			setMonths(newMonths);
 		}
 
-		// Calendar date min
-		let calendarDateMin = set(calendarDate, { date: 1 }).getDay();
-		calendarDateMin = calendarDateMin === 0 ? -5 : 2 - calendarDateMin;
+		if (type === 3) {
+			// Check start date for year type
+			if (
+				!isSameDay(value.startDate, set(value.startDate, { month: 0, date: 1 }))
+			) {
+				setValue({
+					startDate: set(value.startDate, { month: 0, date: 1 }),
+					endDate: value.endDate
+				});
 
-		// Calendar date max
-		const endDateOfMonth = lastDayOfMonth(calendarDate);
-		let calendarDateMax =
-			endDateOfMonth.getDay() !== 0
-				? endDateOfMonth.getDate() - endDateOfMonth.getDay() + 7
-				: endDateOfMonth.getDate();
-
-		// New data
-		let newCalendar = [];
-		let newWeeks = [];
-
-		// Update calendar
-		for (let i = calendarDateMin; i <= calendarDateMax; i++) {
-			// New day value
-			let newDayValue = set(calendarDate, { date: i });
-
-			// Update weeks
-			if (getDay(newDayValue) === 1) {
-				const newWeekValueType =
-					isSameDay(newDayValue, value.startDate) &&
-					isSameDay(newDayValue, value.endDate)
-						? 'limit-week'
-						: isSameDay(newDayValue, value.startDate)
-						? 'start-week'
-						: isSameDay(add(newDayValue, { days: 6 }), value.endDate)
-						? 'end-week'
-						: newDayValue - value.startDate > 0 &&
-						  newDayValue - value.endDate < 0
-						? 'active'
-						: '';
-
-				const newWeekValueTitle = getWeek(newDayValue, { weekStartsOn: 1 });
-
-				newWeeks = [
-					...newWeeks,
-					{
-						type: newWeekValueType,
-						title: `Tuần ${newWeekValueTitle}`,
-						value: newDayValue
-					}
-				];
+				return;
 			}
 
-			// New day type
-			let newDayType = i < 1 || i > endDateOfMonth.getDate() ? 'disable' : '';
-			newDayType =
-				type === 0
-					? isSameDay(newDayValue, value.startDate) &&
-					  isSameDay(newDayValue, value.endDate)
-						? 'limit-date'
-						: isSameDay(newDayValue, value.startDate)
-						? 'start-date'
-						: isSameDay(newDayValue, value.endDate)
-						? 'end-date'
-						: newDayValue - value.startDate > 0 &&
-						  newDayValue - value.endDate < 0
-						? 'active'
-						: newDayType
-					: newDayValue - value.startDate >= 0 &&
-					  newDayValue - value.endDate <= 0
-					? 'active'
-					: newDayType;
+			// Check end date for year type
+			if (!isSameDay(value.endDate, lastDayOfYear(value.endDate))) {
+				setValue({
+					startDate: value.startDate,
+					endDate: lastDayOfYear(value.endDate)
+				});
 
-			newCalendar = [...newCalendar, { type: newDayType, value: newDayValue }];
+				return;
+			}
 		}
 
+		// Update value prop
 		if (setValueProp) setValueProp(value);
-		setCalendar(newCalendar);
-		setWeeks(newWeeks);
 	}, [value, type, calendarDate, setValueProp]);
-
-	// Type value change
-	const [typeValueChange, setTypeValueChange] = useState('startDate');
 
 	// Handle change value
 	const handleChangeValue = (newValue, typeProp) => {
