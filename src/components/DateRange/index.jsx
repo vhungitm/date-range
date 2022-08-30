@@ -1,27 +1,48 @@
 import {
-	add,
 	addMonths,
 	addYears,
-	getDay,
+	eachDayOfInterval,
+	endOfMonth,
+	endOfWeek,
+	endOfYear,
 	getWeek,
+	getYear,
+	isFirstDayOfMonth,
+	isLastDayOfMonth,
+	isMonday,
 	isSameDay,
+	isSameMonth,
+	isWeekend,
 	lastDayOfMonth,
+	lastDayOfWeek,
 	lastDayOfYear,
 	set,
-	sub
+	startOfMonth,
+	startOfWeek,
+	startOfYear
 } from 'date-fns';
-import { isLastDayOfMonth } from 'date-fns/esm';
 import { useEffect, useState } from 'react';
 import {
 	DateRangeControl,
 	DateRangeHeader,
 	DateRangeWrapper
 } from './components';
+import { defaultWeekdays, types } from './datas';
 import './scss/_date-range.scss';
 
 export const DateRange = props => {
 	// Props
-	const { value: valueProp, setValue: setValueProp } = props;
+	const {
+		value: valueProp,
+		handleChangeValue: handleChangeValueProp,
+		type: typeProp,
+		handleChangeType: handleChangeTypeProp,
+		weekdays: weekdaysProp,
+		minDate,
+		maxDate,
+		minDayQuantity,
+		maxDayQuantity
+	} = props;
 
 	// Value
 	const [value, setValue] = useState({
@@ -31,38 +52,33 @@ export const DateRange = props => {
 	const [calendarDate, setCalendarDate] = useState(value.startDate);
 	const [calendar, setCalendar] = useState([]);
 	const [showWrapper, setShowWrapper] = useState(false);
-	const [typeValueChange, setTypeValueChange] = useState('startDate');
+	const [isStartDate, setIsStartDate] = useState(true);
 	const [months, setMonths] = useState([]);
 	const [weeks, setWeeks] = useState([]);
-	const weekdays = [
-		{ name: 'monday', title: 'T2' },
-		{ name: 'tuesday', title: 'T3' },
-		{ name: 'wednesday', title: 'T4' },
-		{ name: 'thursday', title: 'T5' },
-		{ name: 'friday', title: 'T6' },
-		{ name: 'saturday', title: 'T7' },
-		{ name: 'sunday', title: 'CN' }
-	];
-	const types = [
-		{ id: 0, title: 'Ngày' },
-		{ id: 1, title: 'Tuần' },
-		{ id: 2, title: 'Tháng' },
-		{ id: 3, title: 'Năm' }
-	];
-	const [type, setType] = useState(0);
+	const [weekdays] = useState(weekdaysProp || defaultWeekdays);
+	const [type, setType] = useState(typeProp || 0);
 
 	// Handle change type
 	const handleChangeType = newType => {
 		setShowWrapper(true);
 		setType(newType);
 		setCalendarDate(value.startDate);
+
+		if (handleChangeTypeProp) handleChangeTypeProp(newType);
 	};
 
-	// Handle close wrapper calendar
-	const handleCloseWrapper = () => {
-		setTypeValueChange('startDate');
-		setShowWrapper(false);
-	};
+	// Effect close wrapper
+	useEffect(() => {
+		const handleCloseWrapper = e => {
+			if (!e.path.find(item => item.className === 'itm-date-range show'))
+				setShowWrapper(false);
+		};
+
+		document.body.addEventListener('click', e => handleCloseWrapper(e));
+
+		return () =>
+			document.body.removeEventListener('click', e => handleCloseWrapper(e));
+	}, []);
 
 	// Effect update wrapper content
 	useEffect(() => {
@@ -78,105 +94,80 @@ export const DateRange = props => {
 
 		if (type === 0 || type === 1) {
 			if (type === 1) {
-				// Check start date value for week type
-				const startDateWeekday = getDay(value.startDate);
-				if (type === 1 && startDateWeekday !== 1) {
+				// Check start date
+				if (!isMonday(value.startDate)) {
 					setValue({
-						startDate: sub(value.startDate, {
-							days: startDateWeekday === 0 ? 6 : startDateWeekday - 1
-						}),
-						endDate: value.endDate
+						...value,
+						startDate: startOfWeek(value.startDate, { weekStartsOn: 1 })
 					});
 
 					return;
 				}
 
-				// Check end date value for week type
-				const endDateWeekday = getDay(value.endDate);
-				if (type === 1 && endDateWeekday !== 0) {
+				// Check end date
+				if (!isWeekend(value.endDate)) {
 					setValue({
-						startDate: value.startDate,
-						endDate: add(value.endDate, {
-							days: 7 - endDateWeekday
-						})
+						...value,
+						endDate: endOfWeek(value.endDate, { weekStartsOn: 1 })
 					});
 
 					return;
 				}
 			}
-
-			// Calendar date min
-			let calendarDateMin = set(calendarDate, { date: 1 }).getDay();
-			calendarDateMin = calendarDateMin === 0 ? -5 : 2 - calendarDateMin;
-
-			// Calendar date max
-			const endDateOfMonth = lastDayOfMonth(calendarDate);
-			let calendarDateMax =
-				endDateOfMonth.getDay() !== 0
-					? endDateOfMonth.getDate() - endDateOfMonth.getDay() + 7
-					: endDateOfMonth.getDate();
 
 			// New data
 			let newCalendar = [];
 			let newWeeks = [];
 
 			// Update calendar
-			for (let i = calendarDateMin; i <= calendarDateMax; i++) {
-				// New day value
-				let newDayValue = set(calendarDate, { date: i });
-
+			eachDayOfInterval({
+				start: startOfWeek(startOfMonth(calendarDate), { weekStartsOn: 1 }),
+				end: lastDayOfWeek(endOfMonth(calendarDate), { weekStartsOn: 1 })
+			}).forEach(item => {
 				// Update weeks
-				if (getDay(newDayValue) === 1) {
+				if (isMonday(item)) {
 					const newWeekValueType =
-						isSameDay(newDayValue, value.startDate) &&
-						isSameDay(newDayValue, value.endDate)
+						isSameDay(item, value.startDate) &&
+						isSameDay(endOfWeek(item, { weekStartsOn: 1 }), value.endDate)
 							? 'limit-week'
-							: isSameDay(newDayValue, value.startDate)
+							: isSameDay(item, value.startDate)
 							? 'start-week'
-							: isSameDay(add(newDayValue, { days: 6 }), value.endDate)
+							: isSameDay(endOfWeek(item, { weekStartsOn: 1 }), value.endDate)
 							? 'end-week'
-							: newDayValue - value.startDate > 0 &&
-							  newDayValue - value.endDate < 0
+							: item > value.startDate && item < value.endDate
 							? 'active'
 							: '';
-
-					const newWeekValueTitle = getWeek(newDayValue, { weekStartsOn: 1 });
+					const newWeekValueTitle = getWeek(item, { weekStartsOn: 1 });
 
 					newWeeks = [
 						...newWeeks,
 						{
 							type: newWeekValueType,
 							title: `Tuần ${newWeekValueTitle}`,
-							value: newDayValue
+							value: item
 						}
 					];
 				}
 
 				// New day type
-				let newDayType = i < 1 || i > endDateOfMonth.getDate() ? 'disable' : '';
+				let newDayType = !isSameMonth(item, calendarDate) ? 'disable' : '';
 				newDayType =
 					type === 0
-						? isSameDay(newDayValue, value.startDate) &&
-						  isSameDay(newDayValue, value.endDate)
+						? isSameDay(item, value.startDate) && isSameDay(item, value.endDate)
 							? 'limit-date'
-							: isSameDay(newDayValue, value.startDate)
+							: isSameDay(item, value.startDate)
 							? 'start-date'
-							: isSameDay(newDayValue, value.endDate)
+							: isSameDay(item, value.endDate)
 							? 'end-date'
-							: newDayValue - value.startDate > 0 &&
-							  newDayValue - value.endDate < 0
+							: item > value.startDate && item < value.endDate
 							? 'active'
 							: newDayType
-						: newDayValue - value.startDate >= 0 &&
-						  newDayValue - value.endDate <= 0
+						: item >= value.startDate && item <= value.endDate
 						? 'active'
 						: newDayType;
 
-				newCalendar = [
-					...newCalendar,
-					{ type: newDayType, value: newDayValue }
-				];
-			}
+				newCalendar = [...newCalendar, { type: newDayType, value: item }];
+			});
 
 			setCalendar(newCalendar);
 			setWeeks(newWeeks);
@@ -184,7 +175,7 @@ export const DateRange = props => {
 
 		if (type === 2) {
 			// Check start date for month type
-			if (value.startDate.getDate() !== 1) {
+			if (!isFirstDayOfMonth(value.startDate)) {
 				setValue({
 					...value,
 					startDate: set(value.startDate, { date: 1 })
@@ -208,17 +199,17 @@ export const DateRange = props => {
 			// New months
 			let newMonths = [];
 			for (let i = 0; i < 12; i++) {
-				const newDayValue = set(calendarDate, { month: i, date: 1 });
+				const newMonthValue = new Date(getYear(calendarDate), i, 1);
 
 				const newMonthType =
-					isSameDay(value.startDate, newDayValue) &&
-					isSameDay(set(value.endDate, { date: 1 }), newDayValue)
+					isSameDay(value.startDate, newMonthValue) &&
+					isSameDay(endOfMonth(value.endDate), newMonthValue)
 						? 'limit-month'
-						: isSameDay(value.startDate, newDayValue)
+						: isSameDay(value.startDate, newMonthValue)
 						? 'start-month'
-						: isSameDay(set(value.endDate, { date: 1 }), newDayValue)
+						: isSameDay(set(value.endDate, { date: 1 }), newMonthValue)
 						? 'end-month'
-						: value.startDate < newDayValue && newDayValue < value.endDate
+						: value.startDate < newMonthValue && newMonthValue < value.endDate
 						? 'active'
 						: '';
 
@@ -226,7 +217,7 @@ export const DateRange = props => {
 					...newMonths,
 					{
 						type: newMonthType,
-						value: newDayValue
+						value: newMonthValue
 					}
 				];
 			}
@@ -260,37 +251,72 @@ export const DateRange = props => {
 		}
 
 		// Update value prop
-		if (setValueProp) setValueProp(value);
-	}, [value, type, calendarDate, setValueProp]);
+		if (handleChangeValueProp) handleChangeValueProp(value);
+	}, [value, type, calendarDate, handleChangeValueProp]);
 
 	// Handle change value
-	const handleChangeValue = (newValue, typeProp) => {
-		if (type === 3) {
-			newValue = {
-				...value,
-				startDate: typeProp === 'startDate' ? newValue : value.startDate,
-				endDate: typeProp === 'endDate' ? newValue : value.endDate
-			};
-		} else {
-			newValue = {
-				...value,
-				startDate: typeValueChange === 'startDate' ? newValue : value.startDate,
+	const handleChangeValue = (newValue, isStartDateProp) => {
+		if (type === 0) {
+			if (minDate && newValue < minDate) return;
+			if (maxDate && newValue > maxDate) return;
+
+			// Update new value and value change type
+			setValue({
+				startDate: isStartDate ? newValue : value.startDate,
 				endDate: newValue
-			};
+			});
+			setIsStartDate(!isStartDate);
+		} else if (type === 1) {
+			const newValueWeekStart = startOfWeek(newValue, { weekStartsOn: 1 });
+			const newValueWeekEnd = endOfWeek(newValue, { weekStartsOn: 1 });
 
-			// Update new type value change
-			setTypeValueChange(
-				typeValueChange === 'startDate' ? 'endDate' : 'startDate'
-			);
+			// Check min date
+			if (minDate) {
+				const minDateWeekStart = startOfWeek(minDate, { weekStartsOn: 1 });
+				if (newValueWeekStart < minDateWeekStart) return;
+			}
+
+			// Check max date
+			if (maxDate) {
+				const maxDateWeekEnd = endOfWeek(maxDate, { weekStartsOn: 1 });
+				if (newValueWeekEnd > maxDateWeekEnd) return;
+			}
+
+			// Update new value and value change type
+			setValue({
+				startDate: isStartDate ? newValueWeekStart : value.startDate,
+				endDate: newValueWeekEnd
+			});
+			setIsStartDate(!isStartDate);
+		} else if (type === 2) {
+			const newValueMonthStart = set(newValue, { date: 1 });
+			const newValueMonthEnd = lastDayOfMonth(newValue);
+
+			// Check min and max date
+			if (minDate && newValueMonthStart < set(minDate, { date: 1 })) return;
+			if (maxDate && newValueMonthEnd > lastDayOfMonth(maxDate)) return;
+
+			// Update new value and value change type
+			setValue({
+				startDate: isStartDate ? newValueMonthStart : value.startDate,
+				endDate: newValueMonthEnd
+			});
+			setIsStartDate(!isStartDate);
+		} else {
+			// Check min and max date
+			if (minDate && getYear(newValue) < getYear(minDate)) return;
+			if (maxDate && getYear(newValue) > getYear(maxDate)) return;
+
+			// Update new value
+			setValue({
+				startDate: isStartDateProp ? startOfYear(newValue) : value.startDate,
+				endDate: !isStartDateProp ? endOfYear(newValue) : value.endDate
+			});
 		}
-
-		// Update new value
-		setValue(newValue);
 	};
 
 	// Handle change calendar date
 	const handleChangeCalendar = isPre => {
-		console.log('type', type);
 		setCalendarDate(
 			type === 0 || type === 1
 				? addMonths(calendarDate, isPre ? -1 : 1)
@@ -301,7 +327,7 @@ export const DateRange = props => {
 	// Return JSX
 	return (
 		<>
-			<div className={showWrapper ? 'date-range show' : 'date-range'}>
+			<div className={showWrapper ? 'itm-date-range show' : 'itm-date-range'}>
 				{/* Date range header */}
 				<DateRangeHeader
 					types={types}
@@ -314,7 +340,7 @@ export const DateRange = props => {
 					type={type}
 					value={value}
 					showWrapper={showWrapper}
-					setShowWrapper={setShowWrapper}
+					setShowWrapper={() => setShowWrapper(!showWrapper)}
 				/>
 
 				{/* Date range wrapper */}
@@ -325,19 +351,11 @@ export const DateRange = props => {
 					calendarDate={calendarDate}
 					months={months}
 					weeks={weeks}
-					weekdays={weekdays}
+					weekdays={Object.values(weekdays)}
 					handleChangeValue={handleChangeValue}
 					handleChangeCalendar={handleChangeCalendar}
 				/>
 			</div>
-			<div
-				className={
-					showWrapper
-						? 'date-range-calendar-over show'
-						: 'date-range-calendar-over'
-				}
-				onClick={handleCloseWrapper}
-			/>
 		</>
 	);
 };

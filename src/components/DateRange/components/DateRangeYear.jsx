@@ -1,52 +1,44 @@
-import { addYears } from 'date-fns';
+import { addYears, getYear, lastDayOfYear } from 'date-fns';
 import React from 'react';
 
 export const DateRangeYear = props => {
 	const { value, handleChangeValue } = props;
 
-	const onChangeValue = (isPre = true, type = 'startDate') => {
-		if (
-			((type === 'startDate' && !isPre) || (type === 'endDate' && isPre)) &&
-			value.startDate.getFullYear() >= value.endDate.getFullYear()
-		)
-			return;
+	const onChangeValue = (isPre = true, isStartDate = true) => {
+		let newValue = isStartDate ? value.startDate : value.endDate;
+		newValue = addYears(newValue, isPre ? -1 : 1);
 
-		handleChangeValue(
-			addYears(
-				type === 'startDate' ? value.startDate : value.endDate,
-				isPre ? -1 : 1
-			),
-			type
-		);
+		if (isStartDate && getYear(newValue) > getYear(value.endDate)) return;
+		if (!isStartDate && getYear(newValue) < getYear(value.startDate)) return;
+
+		handleChangeValue(newValue, isStartDate);
 	};
 
 	return (
 		<div className="date-range-wrapper-header">
 			{'Từ '}
-
 			<div
 				className="date-range-wrapper-header-btn btn-pre"
-				onClick={() => onChangeValue(true, 'startDate')}
+				onClick={() => onChangeValue(true, true)}
 			/>
 			<div className="date-range-wrapper-header-value">
 				<span>{value.startDate.getFullYear()}</span>
 			</div>
 			<div
 				className="date-range-wrapper-header-btn btn-next"
-				onClick={() => onChangeValue(false, 'startDate')}
+				onClick={() => onChangeValue(false, true)}
 			/>
-
 			{' đến '}
 			<div
 				className="date-range-wrapper-header-btn btn-pre"
-				onClick={() => onChangeValue(true, 'endDate')}
+				onClick={() => onChangeValue(true, false)}
 			/>
 			<div className="date-range-wrapper-header-value">
 				<span>{value.endDate.getFullYear()}</span>
 			</div>
 			<div
 				className="date-range-wrapper-header-btn btn-next"
-				onClick={() => onChangeValue(false, 'endDate')}
+				onClick={() => onChangeValue(false, false)}
 			/>
 		</div>
 	);

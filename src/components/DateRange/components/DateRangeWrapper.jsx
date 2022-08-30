@@ -28,7 +28,6 @@ export const DateRangeWrapper = props => {
 			{type === 0 || type === 1 ? (
 				<DateRangeCalendar
 					type={type}
-					value={value}
 					weeks={weeks}
 					weekdays={weekdays}
 					calendar={calendar}

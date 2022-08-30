@@ -1,7 +1,6 @@
-.date-range {
+.itm-date-range {
 	position: relative;
 	width: 332px;
-	margin: 100px;
 
 	/* Date range header */
 	.date-range-header {
@@ -148,7 +147,8 @@
 					cursor: pointer;
 
 					&.start-week,
-					&.end-week {
+					&.end-week,
+					&.limit-week {
 						border-radius: 4px;
 						background: #108fcf;
 						color: white;
@@ -285,8 +285,6 @@
 
 					.date-range-calendar-day {
 						padding-left: 0;
-						.date-range-calendar-day-value {
-						}
 						&.start-week {
 							width: 31px;
 						}
@@ -403,19 +401,5 @@
 		.date-range-wrapper {
 			display: block;
 		}
-	}
-}
-.date-range-calendar-over {
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 100;
-	display: none;
-	width: 100vw;
-	height: 100vh;
-	background: transparent;
-
-	&.show {
-		display: block;
 	}
 }

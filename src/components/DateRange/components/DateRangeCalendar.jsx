@@ -37,9 +37,9 @@ export const DateRangeCalendar = props => {
 				{/* Calendar weekdays */}
 				<div className="date-range-calendar-weekdays">
 					{weekdays.map(item => (
-						<div className="date-range-calendar-weekdays-item" key={item.name}>
+						<div className="date-range-calendar-weekdays-item" key={item}>
 							<div className="date-range-calendar-weekdays-item-value">
-								{item.title}
+								{item}
 							</div>
 						</div>
 					))}

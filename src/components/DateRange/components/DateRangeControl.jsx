@@ -55,10 +55,7 @@ export const DateRangeControl = props => {
 
 	// Return JSX
 	return (
-		<div
-			className="date-range-control"
-			onClick={() => setShowWrapper(!showWrapper)}
-		>
+		<div className="date-range-control" onClick={setShowWrapper}>
 			{valueJSX}
 			<div className="date-range-control-icon"></div>
 		</div>
