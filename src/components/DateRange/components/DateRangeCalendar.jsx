@@ -1,5 +1,4 @@
 import { isSameDay } from 'date-fns';
-import React from 'react';
 
 export const DateRangeCalendar = props => {
 	const { type, weeks, weekdays, calendar, handleChangeValue } = props;

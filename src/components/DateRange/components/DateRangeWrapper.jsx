@@ -1,4 +1,3 @@
-import React from 'react';
 import { DateRangeCalendar } from './DateRangeCalendar';
 import { DateRangeMonth } from './DateRangeMonth';
 import { DateRangeWrapperHeader } from './DateRangeWrapperHeader';

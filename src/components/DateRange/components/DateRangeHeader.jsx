@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const DateRangeHeader = props => {
 	const { types, type, handleChangeType } = props;
 

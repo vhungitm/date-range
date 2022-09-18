@@ -1,5 +1,4 @@
 import { isSameDay, set } from 'date-fns';
-import React from 'react';
 
 export const DateRangeMonth = props => {
 	const { months, handleChangeValue } = props;

@@ -1,5 +1,4 @@
-import { addYears, getYear, lastDayOfYear } from 'date-fns';
-import React from 'react';
+import { addYears, getYear } from 'date-fns';
 
 export const DateRangeYear = props => {
 	const { value, handleChangeValue } = props;

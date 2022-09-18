@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const DateRangeWrapperHeader = props => {
 	const { type, calendarDate, handleChangeCalendar } = props;
 

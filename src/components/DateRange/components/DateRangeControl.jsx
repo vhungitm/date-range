@@ -1,8 +1,7 @@
-import { format, getWeek, getYear } from 'date-fns';
-import React from 'react';
+import { format, getISOWeek, getYear } from 'date-fns';
 
 export const DateRangeControl = props => {
-	const { value, type, showWrapper, setShowWrapper } = props;
+	const { value, type, setShowWrapper } = props;
 
 	// value JSX for day type
 	const dayValueJSX = (
@@ -17,9 +16,10 @@ export const DateRangeControl = props => {
 	const weekValueJSX = (
 		<div className="date-range-control-value">
 			{'Tuần '}
-			{getWeek(value.startDate, { weekStartsOn: 1 })}.{getYear(value.startDate)}
+			{getISOWeek(value.startDate, { weekStartsOn: 1 })}.
+			{getYear(value.startDate)}
 			{' đến tuần '}
-			{getWeek(value.endDate, { weekStartsOn: 1 })}.{getYear(value.endDate)}
+			{getISOWeek(value.endDate, { weekStartsOn: 1 })}.{getYear(value.endDate)}
 		</div>
 	);
 
