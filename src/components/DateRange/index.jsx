@@ -436,10 +436,17 @@ export const DateRange = props => {
 
 			// Check max day quantity
 			if (!isStartDate && maxDayQuantity > 0) {
-				if (timeLineInvalid) {
-					newStartDate = subDays(newEndDate, maxDayQuantity - 1);
-				} else {
-					newEndDate = addDays(newStartDate, maxDayQuantity - 1);
+				const dayQuantity = eachDayOfInterval({
+					start: newStartDate,
+					end: newEndDate
+				});
+
+				if (dayQuantity > maxDayQuantity) {
+					if (timeLineInvalid) {
+						newStartDate = subDays(newEndDate, maxDayQuantity - 1);
+					} else {
+						newEndDate = addDays(newStartDate, maxDayQuantity - 1);
+					}
 				}
 			}
 
