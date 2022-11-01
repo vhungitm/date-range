@@ -19,7 +19,6 @@ export const DateRangeWrapperHeader = props => {
 		</div>
 	);
 
-	// JSX for month type
 	const monthJSX = (
 		<div className="date-range-wrapper-header">
 			<div
@@ -36,6 +35,5 @@ export const DateRangeWrapperHeader = props => {
 		</div>
 	);
 
-	// Return JSX
 	return type === 0 || type === 1 ? dateValueJSX : type === 2 ? monthJSX : null;
 };

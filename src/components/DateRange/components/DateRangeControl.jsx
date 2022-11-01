@@ -3,7 +3,6 @@ import { format, getISOWeek, getYear } from 'date-fns';
 export const DateRangeControl = props => {
 	const { value, type, setShowWrapper } = props;
 
-	// value JSX for day type
 	const dayValueJSX = (
 		<div className="date-range-control-value">
 			{format(value.startDate, 'dd.MM.yyyy')}
@@ -12,7 +11,6 @@ export const DateRangeControl = props => {
 		</div>
 	);
 
-	// Value JSX for week type
 	const weekValueJSX = (
 		<div className="date-range-control-value">
 			{'Tuần '}
@@ -23,7 +21,6 @@ export const DateRangeControl = props => {
 		</div>
 	);
 
-	// Value JSX for month type
 	const monthValueJSX = (
 		<div className="date-range-control-value">
 			{'Tháng '}
@@ -33,7 +30,6 @@ export const DateRangeControl = props => {
 		</div>
 	);
 
-	// Value JSX for year type
 	const yearValueJSX = (
 		<div className="date-range-control-value">
 			{'Năm '}
@@ -43,7 +39,6 @@ export const DateRangeControl = props => {
 		</div>
 	);
 
-	// Value JSX
 	const valueJSX =
 		type === 0
 			? dayValueJSX
@@ -53,7 +48,6 @@ export const DateRangeControl = props => {
 			? monthValueJSX
 			: yearValueJSX;
 
-	// Return JSX
 	return (
 		<div className="date-range-control" onClick={setShowWrapper}>
 			{valueJSX}

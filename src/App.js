@@ -8,8 +8,8 @@ const App = () => {
 		endDate: new Date()
 	});
 	const [type, setType] = useState(0);
-	const minDate = new Date('2021-10-13');
-	const maxDate = new Date('2025-9-24');
+	const minDate = subDays(new Date(), 30);
+	const maxDate = new Date();
 
 	return (
 		<div style={{ margin: '50px 100px' }}>

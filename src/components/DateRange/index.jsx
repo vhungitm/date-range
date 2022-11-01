@@ -40,10 +40,10 @@ import {
 	DateRangeWrapper
 } from './components';
 import { defaultWeekdays, types } from './datas';
+
 import './scss/_date-range.scss';
 
 export const DateRange = props => {
-	// Props
 	const {
 		value: valueProp,
 		handleChangeValue: handleChangeValueProp,
@@ -58,7 +58,6 @@ export const DateRange = props => {
 		maxYearQuantity
 	} = props;
 
-	// Value
 	const [value, setValue] = useState({
 		startDate: valueProp?.startDate || new Date(),
 		endDate: valueProp?.endDate || new Date()
@@ -72,7 +71,6 @@ export const DateRange = props => {
 	const [weekdays] = useState(weekdaysProp || defaultWeekdays);
 	const [type, setType] = useState(typeProp || 0);
 
-	// Handle change type
 	const handleChangeType = newType => {
 		setShowWrapper(true);
 		setType(newType);
@@ -83,17 +81,12 @@ export const DateRange = props => {
 
 	// Effect close wrapper
 	const ref = useRef();
-
 	useEffect(() => {
-		const handleCloseWrapper = e => {
-			if (ref.current.contains(e.target)) return;
-			setShowWrapper(false);
-		};
+		const handleCloseWrapper = e =>
+			!ref?.current?.contains(e.target) && setShowWrapper(false);
 
-		document.body.addEventListener('click', e => handleCloseWrapper(e));
-
-		return () =>
-			document.body.removeEventListener('click', e => handleCloseWrapper(e));
+		document.addEventListener('click', handleCloseWrapper);
+		return () => document.removeEventListener('click', handleCloseWrapper);
 	}, []);
 
 	// Effect update wrapper content
@@ -413,7 +406,6 @@ export const DateRange = props => {
 		handleChangeValueProp
 	]);
 
-	// Handle change value
 	const handleChangeValue = (newValue, isStartDateProp) => {
 		if (type === 0) {
 			// New value
@@ -564,7 +556,6 @@ export const DateRange = props => {
 		}
 	};
 
-	// Handle change calendar date
 	const handleChangeCalendar = isPre => {
 		if (isPre) {
 			if (type === 0 || type === 1) {
@@ -605,28 +596,22 @@ export const DateRange = props => {
 		}
 	};
 
-	// Return JSX
 	return (
 		<div
 			ref={ref}
 			className={showWrapper ? 'itm-date-range show' : 'itm-date-range'}
 		>
-			{/* Date range header */}
 			<DateRangeHeader
 				types={types}
 				type={type}
 				handleChangeType={handleChangeType}
 			/>
-
-			{/* Date range control */}
 			<DateRangeControl
 				type={type}
 				value={value}
 				showWrapper={showWrapper}
 				setShowWrapper={() => setShowWrapper(!showWrapper)}
 			/>
-
-			{/* Date range wrapper */}
 			<DateRangeWrapper
 				type={type}
 				value={value}

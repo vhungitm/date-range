@@ -16,6 +16,24 @@ export const DateRangeWrapper = props => {
 		handleChangeCalendar
 	} = props;
 
+	const dateRangeCalendarJSX = (
+		<DateRangeCalendar
+			type={type}
+			weeks={weeks}
+			weekdays={weekdays}
+			calendar={calendar}
+			handleChangeValue={handleChangeValue}
+		/>
+	);
+
+	const monthJSX = (
+		<DateRangeMonth months={months} handleChangeValue={handleChangeValue} />
+	);
+
+	const yearJSX = (
+		<DateRangeYear value={value} handleChangeValue={handleChangeValue} />
+	);
+
 	return (
 		<div className="date-range-wrapper">
 			<DateRangeWrapperHeader
@@ -24,19 +42,11 @@ export const DateRangeWrapper = props => {
 				handleChangeCalendar={handleChangeCalendar}
 			/>
 
-			{type === 0 || type === 1 ? (
-				<DateRangeCalendar
-					type={type}
-					weeks={weeks}
-					weekdays={weekdays}
-					calendar={calendar}
-					handleChangeValue={handleChangeValue}
-				/>
-			) : type === 2 ? (
-				<DateRangeMonth months={months} handleChangeValue={handleChangeValue} />
-			) : (
-				<DateRangeYear value={value} handleChangeValue={handleChangeValue} />
-			)}
+			{type === 0 || type === 1
+				? dateRangeCalendarJSX
+				: type === 2
+				? monthJSX
+				: yearJSX}
 		</div>
 	);
 };
