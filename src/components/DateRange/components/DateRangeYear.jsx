@@ -13,8 +13,6 @@ export const DateRangeYear = props => {
 		handleChangeValue(newValue, isStartDate);
 	};
 
-	console.log(value.endDate.getFullYear());
-
 	return (
 		<div className="date-range-wrapper-header">
 			{'Từ '}
