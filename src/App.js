@@ -15,9 +15,9 @@ const App = () => {
 		<div style={{ margin: '50px 100px' }}>
 			<DateRange
 				value={value}
-				showHeader={false}
-				showControl={false}
-				alwaysShowWrapper={true}
+				// showHeader={false}
+				// showControl={false}
+				// alwaysShowWrapper={true}
 				handleChangeValue={setValue}
 				type={type}
 				handleChangeType={setType}
