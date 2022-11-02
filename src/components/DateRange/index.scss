@@ -399,7 +399,6 @@
 			&.week {
 				display: flex;
 				gap: 0;
-				padding: 4px;
 
 				.date-range-calendar-weeks {
 					width: 61px;
@@ -777,7 +776,7 @@
 			border: 1px solid #108fcf;
 			border-radius: 0 0 4px 4px;
 			background: white;
-			padding: 24px;
+			padding: 23px;
 		}
 	}
 }
