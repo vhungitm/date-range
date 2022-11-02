@@ -19,6 +19,7 @@ const App = () => {
 				type={type}
 				handleChangeType={setType}
 				maxDate={new Date()}
+				minDayQuantity={2}
 				maxDayQuantity={30}
 				maxWeekQuantity={30}
 				maxMonthQuantity={30}

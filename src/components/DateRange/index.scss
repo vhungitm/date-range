@@ -290,7 +290,7 @@
 									padding-left: 0px;
 
 									&::before {
-										width: calc(100% + 4px);
+										width: 40px;
 									}
 								}
 							}
@@ -323,7 +323,7 @@
 								top: -2px;
 								right: -2px;
 
-								width: calc(100% + 2px);
+								width: 44px;
 								height: 36px;
 
 								border-top: 1px solid #108fcf;
@@ -350,6 +350,10 @@
 									content: '';
 									z-index: 1;
 								}
+							}
+
+							&.start-week::before {
+								width: 36px;
 							}
 						}
 
