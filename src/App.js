@@ -19,10 +19,10 @@ const App = () => {
 				type={type}
 				handleChangeType={setType}
 				maxDate={new Date()}
-				maxDayQuantity={31}
-				maxWeekQuantity={31}
-				maxMonthQuantity={31}
-				maxYearQuantity={31}
+				maxDayQuantity={30}
+				maxWeekQuantity={30}
+				maxMonthQuantity={30}
+				maxYearQuantity={30}
 			/>
 
 			<div style={{ margin: '300px 100px 0' }}>

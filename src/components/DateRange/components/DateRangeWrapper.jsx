@@ -13,6 +13,8 @@ export const DateRangeWrapper = props => {
 		weeks,
 		weekdays,
 		handleChangeValue,
+		handleChangePreviewValue,
+		handleRemovePreviewValue,
 		handleChangeCalendar
 	} = props;
 
@@ -22,16 +24,28 @@ export const DateRangeWrapper = props => {
 			weeks={weeks}
 			weekdays={weekdays}
 			calendar={calendar}
+			handleChangePreviewValue={handleChangePreviewValue}
+			handleRemovePreviewValue={handleRemovePreviewValue}
 			handleChangeValue={handleChangeValue}
 		/>
 	);
 
 	const monthJSX = (
-		<DateRangeMonth months={months} handleChangeValue={handleChangeValue} />
+		<DateRangeMonth
+			months={months}
+			handleChangePreviewValue={handleChangePreviewValue}
+			handleRemovePreviewValue={handleRemovePreviewValue}
+			handleChangeValue={handleChangeValue}
+		/>
 	);
 
 	const yearJSX = (
-		<DateRangeYear value={value} handleChangeValue={handleChangeValue} />
+		<DateRangeYear
+			value={value}
+			handleChangePreviewValue={handleChangePreviewValue}
+			handleRemovePreviewValue={handleRemovePreviewValue}
+			handleChangeValue={handleChangeValue}
+		/>
 	);
 
 	return (

@@ -4,11 +4,7 @@ import {
 	addWeeks,
 	addYears,
 	eachDayOfInterval,
-	eachMonthOfInterval,
-	eachWeekOfInterval,
-	eachYearOfInterval,
 	endOfMonth,
-	endOfWeek,
 	endOfYear,
 	getISOWeek,
 	getMonth,
@@ -20,13 +16,11 @@ import {
 	isSameMonth,
 	isSunday,
 	lastDayOfMonth,
-	lastDayOfWeek,
 	lastDayOfYear,
 	set,
 	setDate,
 	setMonth,
 	startOfMonth,
-	startOfWeek,
 	startOfYear,
 	subDays,
 	subMonths,
@@ -41,7 +35,16 @@ import {
 } from './components';
 import { defaultWeekdays, types } from './datas';
 
-import './scss/_date-range.scss';
+import './index.scss';
+import {
+	getDayQuantity,
+	getEndOfWeek,
+	getMonthQuantity,
+	getStartOfWeek,
+	getWeekQuantity,
+	getYearQuantity,
+	isBetween
+} from './utils';
 
 export const DateRange = props => {
 	const {
@@ -52,12 +55,17 @@ export const DateRange = props => {
 		weekdays: weekdaysProp,
 		minDate,
 		maxDate,
+		minDayQuantity,
 		maxDayQuantity,
+		minWeekQuantity,
 		maxWeekQuantity,
+		minMonthQuantity,
 		maxMonthQuantity,
+		minYearQuantity,
 		maxYearQuantity
 	} = props;
 
+	const [previewValue, setPreviewValue] = useState();
 	const [value, setValue] = useState({
 		startDate: valueProp?.startDate || new Date(),
 		endDate: valueProp?.endDate || new Date()
@@ -115,12 +123,22 @@ export const DateRange = props => {
 					return;
 				}
 
+				// Check min day quantity
+				if (minDayQuantity > 1) {
+					const dayQuantity = getDayQuantity(value.startDate, value.endDate);
+
+					if (dayQuantity < minDayQuantity) {
+						setValue({
+							...value,
+							endDate: addDays(value.startDate, minDayQuantity - 1)
+						});
+						return;
+					}
+				}
+
 				// Check max day quantity
 				if (maxDayQuantity > 0) {
-					const dayQuantity = eachDayOfInterval({
-						start: value.startDate,
-						end: value.endDate
-					}).length;
+					const dayQuantity = getDayQuantity(value.startDate, value.endDate);
 
 					if (dayQuantity > maxDayQuantity) {
 						setValue({
@@ -135,9 +153,10 @@ export const DateRange = props => {
 			// Check week type
 			if (type === 1) {
 				// Check start date
-				const startWeek = startOfWeek(value.startDate, { weekStartsOn: 1 });
 
 				if (!isMonday(value.startDate)) {
+					const startWeek = getStartOfWeek(value.startDate);
+
 					setValue({ ...value, startDate: startWeek });
 					setCalendarDate(startWeek);
 					return;
@@ -145,7 +164,7 @@ export const DateRange = props => {
 
 				// Check min date
 				if (minDate) {
-					const minDateByWeek = startOfWeek(minDate, { weekStartsOn: 1 });
+					const minDateByWeek = getStartOfWeek(minDate);
 
 					if (value.startDate < minDateByWeek) {
 						setValue({ ...value, startDate: minDateByWeek });
@@ -158,14 +177,14 @@ export const DateRange = props => {
 				if (!isSunday(value.endDate)) {
 					setValue({
 						...value,
-						endDate: endOfWeek(value.endDate, { weekStartsOn: 1 })
+						endDate: getEndOfWeek(value.endDate)
 					});
 					return;
 				}
 
 				// Check max date
 				if (maxDate) {
-					const maxDateByWeek = endOfWeek(maxDate, { weekStartsOn: 1 });
+					const maxDateByWeek = getEndOfWeek(maxDate);
 
 					if (value.endDate > maxDateByWeek) {
 						setValue({ ...value, endDate: maxDateByWeek });
@@ -173,17 +192,37 @@ export const DateRange = props => {
 					}
 				}
 
+				// Check min week quantity
+				if (minWeekQuantity > 0) {
+					const weekQuantity = getWeekQuantity(value.startDate, value.endDate);
+
+					if (weekQuantity < minWeekQuantity) {
+						setValue({
+							...value,
+							endDate: getEndOfWeek(
+								addWeeks(value.startDate, minWeekQuantity - 1),
+								{
+									weekStartsOn: 1
+								}
+							)
+						});
+						return;
+					}
+				}
+
 				// Check max week quantity
 				if (maxWeekQuantity > 0) {
-					const weekQuantity = eachWeekOfInterval(
-						{ start: value.startDate, end: value.endDate },
-						{ weekStartsOn: 1 }
-					).length;
+					const weekQuantity = getWeekQuantity(value.startDate, value.endDate);
 
 					if (weekQuantity > maxWeekQuantity) {
 						setValue({
 							...value,
-							endDate: addWeeks(value.startDate, maxWeekQuantity - 1)
+							endDate: getEndOfWeek(
+								addWeeks(value.startDate, maxWeekQuantity - 1),
+								{
+									weekStartsOn: 1
+								}
+							)
 						});
 						return;
 					}
@@ -196,31 +235,42 @@ export const DateRange = props => {
 
 			// Date range
 			eachDayOfInterval({
-				start: startOfWeek(startOfMonth(calendarDate), { weekStartsOn: 1 }),
-				end: lastDayOfWeek(endOfMonth(calendarDate), { weekStartsOn: 1 })
+				start: getStartOfWeek(startOfMonth(calendarDate)),
+				end: getEndOfWeek(endOfMonth(calendarDate))
 			}).forEach(item => {
 				// Update weeks
 				if (isMonday(item)) {
-					const newWeekValueType =
+					let newWeekValueType =
 						isSameDay(item, value.startDate) &&
-						isSameDay(endOfWeek(item, { weekStartsOn: 1 }), value.endDate)
-							? 'limit-week'
+						isSameDay(getEndOfWeek(item), value.endDate)
+							? ' limit-week'
 							: isSameDay(item, value.startDate)
-							? 'start-week'
-							: isSameDay(endOfWeek(item, { weekStartsOn: 1 }), value.endDate)
-							? 'end-week'
+							? ' start-week'
+							: isSameDay(getEndOfWeek(item), value.endDate)
+							? ' end-week'
 							: item > value.startDate && item < value.endDate
-							? 'active'
-							: minDate &&
-							  startOfWeek(item, { weekStartsOn: 1 }) <
-									startOfWeek(minDate, { weekStartsOn: 1 })
-							? 'block'
-							: maxDate &&
-							  endOfWeek(item, { weekStartsOn: 1 }) >
-									endOfWeek(maxDate, { weekStartsOn: 1 })
-							? 'block'
+							? ' active'
+							: minDate && getStartOfWeek(item) < getStartOfWeek(minDate)
+							? ' block'
+							: maxDate && getEndOfWeek(item) > getEndOfWeek(maxDate)
+							? ' block'
 							: '';
-					const newWeekValueTitle = getISOWeek(item, { weekStartsOn: 1 });
+
+					if (previewValue) {
+						newWeekValueType +=
+							isSameDay(item, previewValue.startDate) &&
+							isSameDay(getEndOfWeek(item), previewValue.endDate)
+								? ' limit-week-preview'
+								: isSameDay(item, previewValue.startDate)
+								? ' start-week-preview'
+								: isSameDay(getEndOfWeek(item), previewValue.endDate)
+								? ' end-week-preview'
+								: item > previewValue.startDate && item < previewValue.endDate
+								? ' active-preview'
+								: '';
+					}
+
+					const newWeekValueTitle = getISOWeek(item);
 
 					newWeeks = [
 						...newWeeks,
@@ -233,33 +283,53 @@ export const DateRange = props => {
 				}
 
 				// New day type
-				let newDayType = !isSameMonth(item, calendarDate) ? 'disable' : '';
+				let newDayType = !isSameMonth(item, calendarDate) ? ' disable' : '';
+
 				newDayType =
 					type === 0
 						? isSameDay(item, value.startDate) && isSameDay(item, value.endDate)
-							? 'limit-date'
+							? ' limit-date'
 							: isSameDay(item, value.startDate)
-							? 'start-date'
+							? ' start-date'
 							: isSameDay(item, value.endDate)
-							? 'end-date'
+							? ' end-date'
 							: item > value.startDate && item < value.endDate
-							? 'active'
+							? ' active'
 							: minDate && item < minDate
-							? 'block'
+							? ' block'
 							: maxDate && item > maxDate
-							? 'block'
+							? ' block'
 							: newDayType
-						: item >= value.startDate && item <= value.endDate
-						? 'active'
-						: minDate &&
-						  startOfWeek(item, { weekStartsOn: 1 }) <
-								startOfWeek(minDate, { weekStartsOn: 1 })
-						? 'block'
-						: maxDate &&
-						  endOfWeek(item, { weekStartsOn: 1 }) >
-								endOfWeek(maxDate, { weekStartsOn: 1 })
-						? 'block'
+						: isBetween(item, { start: value.startDate, end: value.endDate })
+						? ' active'
+						: minDate && getStartOfWeek(item) < getStartOfWeek(minDate)
+						? ' block'
+						: maxDate && getEndOfWeek(item) > getEndOfWeek(maxDate)
+						? ' block'
 						: newDayType;
+
+				if (previewValue) {
+					newDayType +=
+						type === 0
+							? isSameDay(item, previewValue.startDate) &&
+							  isSameDay(item, previewValue.endDate)
+								? ' limit-date-preview'
+								: isSameDay(item, previewValue.startDate)
+								? ' start-date-preview'
+								: isSameDay(item, previewValue.endDate)
+								? ' end-date-preview'
+								: item > previewValue.startDate && item < previewValue.endDate
+								? ' active-preview'
+								: ''
+							: type === 1
+							? isBetween(item, {
+									start: previewValue.startDate,
+									end: previewValue.endDate
+							  })
+								? ' active-preview'
+								: ''
+							: '';
+				}
 
 				newCalendar = [...newCalendar, { type: newDayType, value: item }];
 			});
@@ -300,12 +370,28 @@ export const DateRange = props => {
 				}
 			}
 
+			// Check min month quantity
+			if (minMonthQuantity > 0) {
+				const valueMonthQuantity = getMonthQuantity(
+					value.startDate,
+					value.endDate
+				);
+
+				if (valueMonthQuantity < minMonthQuantity) {
+					setValue({
+						...value,
+						endDate: addMonths(value.startDate, minMonthQuantity - 1)
+					});
+					return;
+				}
+			}
+
 			// Check max month quantity
 			if (maxMonthQuantity > 0) {
-				const valueMonthQuantity = eachMonthOfInterval({
-					start: value.startDate,
-					end: value.endDate
-				}).length;
+				const valueMonthQuantity = getMonthQuantity(
+					value.startDate,
+					value.endDate
+				);
 
 				if (valueMonthQuantity > maxMonthQuantity) {
 					setValue({
@@ -321,21 +407,36 @@ export const DateRange = props => {
 			for (let i = 0; i < 12; i++) {
 				let newMonthValue = startOfMonth(setMonth(calendarDate, i));
 
-				const newMonthType =
+				let newMonthType =
 					isSameDay(value.startDate, newMonthValue) &&
-					isSameDay(endOfMonth(value.endDate), newMonthValue)
-						? 'limit-month'
+					isSameDay(value.endDate, endOfMonth(newMonthValue))
+						? ' limit-month'
 						: isSameDay(value.startDate, newMonthValue)
-						? 'start-month'
+						? ' start-month'
 						: isSameDay(set(value.endDate, { date: 1 }), newMonthValue)
-						? 'end-month'
+						? ' end-month'
 						: value.startDate < newMonthValue && newMonthValue < value.endDate
-						? 'active'
+						? ' active'
 						: minDate && newMonthValue < startOfMonth(minDate)
-						? 'block'
+						? ' block'
 						: maxDate && newMonthValue > endOfMonth(maxDate)
-						? 'block'
+						? ' block'
 						: '';
+
+				if (previewValue) {
+					newMonthType +=
+						isSameDay(previewValue.startDate, newMonthValue) &&
+						isSameDay(previewValue.endDate, endOfMonth(newMonthValue))
+							? ' limit-month-preview'
+							: isSameDay(previewValue.startDate, newMonthValue)
+							? ' start-month-preview'
+							: isSameDay(set(previewValue.endDate, { date: 1 }), newMonthValue)
+							? ' end-month-preview'
+							: previewValue.startDate < newMonthValue &&
+							  newMonthValue < previewValue.endDate
+							? ' active-preview'
+							: '';
+				}
 
 				newMonths = [
 					...newMonths,
@@ -375,12 +476,21 @@ export const DateRange = props => {
 				return;
 			}
 
+			// // Check min year quantity
+			if (minYearQuantity > 1) {
+				const yearQuantity = getYearQuantity(value.startDate, value.endDate);
+
+				if (yearQuantity < minYearQuantity) {
+					setValue({
+						...value,
+						startDate: subYears(value.endDate, minYearQuantity - 1)
+					});
+				}
+			}
+
 			// Check max year quantity
-			if (maxYearQuantity) {
-				const yearQuantity = eachYearOfInterval({
-					start: value.startDate,
-					end: value.endDate
-				}).length;
+			if (maxYearQuantity > 1) {
+				const yearQuantity = getYearQuantity(value.startDate, value.endDate);
 
 				if (yearQuantity > maxYearQuantity) {
 					setValue({
@@ -395,22 +505,29 @@ export const DateRange = props => {
 		if (handleChangeValueProp) handleChangeValueProp(value);
 	}, [
 		value,
+		previewValue,
 		type,
 		calendarDate,
 		minDate,
 		maxDate,
+		minDayQuantity,
 		maxDayQuantity,
+		minWeekQuantity,
 		maxWeekQuantity,
+		minMonthQuantity,
 		maxMonthQuantity,
+		minYearQuantity,
 		maxYearQuantity,
 		handleChangeValueProp
 	]);
 
-	const handleChangeValue = (newValue, isStartDateProp) => {
+	const checkNewValue = (newValue, isStartDateProp) => {
+		let newStartDate, newEndDate;
+
 		if (type === 0) {
 			// New value
-			let newStartDate = isStartDate ? newValue : value.startDate;
-			let newEndDate = newValue;
+			newStartDate = isStartDate ? newValue : value.startDate;
+			newEndDate = newValue;
 
 			// Check time line
 			let timeLineInvalid = false;
@@ -426,73 +543,79 @@ export const DateRange = props => {
 			if (minDate && newStartDate < minDate) return;
 			if (maxDate && newEndDate > maxDate) return;
 
-			// Check max day quantity
-			if (!isStartDate && maxDayQuantity > 0) {
-				const dayQuantity = eachDayOfInterval({
-					start: newStartDate,
-					end: newEndDate
-				});
+			// Check min day quantity
+			if (minDayQuantity > 0) {
+				const dayQuantity = getDayQuantity(newStartDate, newEndDate);
 
-				if (dayQuantity > maxDayQuantity) {
-					if (timeLineInvalid) {
-						newStartDate = subDays(newEndDate, maxDayQuantity - 1);
-					} else {
-						newEndDate = addDays(newStartDate, maxDayQuantity - 1);
-					}
+				if (dayQuantity < minDayQuantity) {
+					if (timeLineInvalid)
+						newStartDate = subDays(newEndDate, minDayQuantity - 1);
+					else newEndDate = addDays(newStartDate, minDayQuantity - 1);
 				}
 			}
 
-			// Update new value and type change
-			setValue({ startDate: newStartDate, endDate: newEndDate });
-			setIsStartDate(!isStartDate);
+			// Check max day quantity
+			if (maxDayQuantity > 0) {
+				const dayQuantity = getDayQuantity(newStartDate, newEndDate);
+
+				if (dayQuantity > maxDayQuantity) {
+					if (timeLineInvalid)
+						newStartDate = subDays(newEndDate, maxDayQuantity - 1);
+					else newEndDate = addDays(newStartDate, maxDayQuantity - 1);
+				}
+			}
 		} else if (type === 1) {
 			// New value
-			let newStartDate = isStartDate
-				? startOfWeek(newValue, { weekStartsOn: 1 })
-				: value.startDate;
-			let newEndDate = endOfWeek(newValue, { weekStartsOn: 1 });
+			newStartDate = isStartDate ? getStartOfWeek(newValue) : value.startDate;
+			newEndDate = getEndOfWeek(newValue);
 
 			// Check time line
 			let timeLineInvalid = false;
 
 			if (newStartDate > newEndDate) {
 				const tempDate = newStartDate;
-				newStartDate = startOfWeek(newEndDate, { weekStartsOn: 1 });
-				newEndDate = endOfWeek(tempDate, { weekStartsOn: 1 });
+				newStartDate = getStartOfWeek(newEndDate);
+				newEndDate = getEndOfWeek(tempDate);
 				timeLineInvalid = true;
 			}
 
 			// Check min and max date
-			if (minDate && newStartDate < startOfWeek(minDate, { weekStartsOn: 1 }))
-				return;
-			if (maxDate && newEndDate > endOfWeek(maxDate, { weekStartsOn: 1 }))
-				return;
+			if (minDate && newStartDate < getStartOfWeek(minDate)) return;
+			if (maxDate && newEndDate > getEndOfWeek(maxDate)) return;
 
-			// Check max week quantity
-			if (!isStartDate && maxWeekQuantity > 0) {
-				const weekQuantity = eachWeekOfInterval(
-					{ start: newStartDate, end: newEndDate },
-					{ weekStartsOn: 1 }
-				).length;
+			// Check min week quantity
+			if (minWeekQuantity > 0) {
+				const weekQuantity = getWeekQuantity(newStartDate, newEndDate);
 
-				if (weekQuantity > maxWeekQuantity) {
+				if (weekQuantity < minWeekQuantity) {
 					if (timeLineInvalid) {
-						newStartDate = subWeeks(newEndDate, maxWeekQuantity - 1);
-						newStartDate = startOfWeek(newStartDate, { weekStartsOn: 1 });
+						newStartDate = subWeeks(newEndDate, minWeekQuantity - 1);
+						newStartDate = getStartOfWeek(newStartDate);
 					} else {
-						newEndDate = addWeeks(newStartDate, maxWeekQuantity - 1);
-						newEndDate = endOfWeek(newEndDate, { weekStartsOn: 1 });
+						newEndDate = addWeeks(newStartDate, minWeekQuantity - 1);
+						newEndDate = getEndOfWeek(newEndDate);
 					}
 				}
 			}
 
-			// Update new value and type change
-			setValue({ startDate: newStartDate, endDate: newEndDate });
-			setIsStartDate(!isStartDate);
+			// Check max week quantity
+			if (maxWeekQuantity > 0) {
+				const weekQuantity = getWeekQuantity(newStartDate, newEndDate);
+
+				if (weekQuantity > maxWeekQuantity) {
+					if (timeLineInvalid) {
+						newStartDate = subWeeks(newEndDate, maxWeekQuantity - 1);
+						newStartDate = getStartOfWeek(newStartDate);
+					} else {
+						newEndDate = addWeeks(newStartDate, maxWeekQuantity - 1);
+						newEndDate = getEndOfWeek(newEndDate);
+					}
+				}
+			}
 		} else if (type === 2) {
 			// New value
-			let newStartDate = isStartDate ? setDate(newValue, 1) : value.startDate;
-			let newEndDate = endOfMonth(newValue);
+			newStartDate = isStartDate ? setDate(newValue, 1) : value.startDate;
+			newEndDate = endOfMonth(newValue);
 
 			// Check time line
 			let timeLineInvalid = false;
@@ -508,12 +631,24 @@ export const DateRange = props => {
 			if (minDate && newStartDate < startOfMonth(minDate)) return;
 			if (maxDate && newEndDate > endOfMonth(maxDate)) return;
 
+			// Check min month quantity
+			if (minMonthQuantity > 0) {
+				const monthQuantity = getMonthQuantity(newStartDate, newEndDate);
+
+				if (monthQuantity < minMonthQuantity) {
+					if (timeLineInvalid) {
+						newStartDate = subMonths(newEndDate, minMonthQuantity - 1);
+						newStartDate = setDate(newStartDate, 1);
+					} else {
+						newEndDate = addMonths(newStartDate, minMonthQuantity - 1);
+						newEndDate = endOfMonth(newEndDate);
+					}
+				}
+			}
+
 			// Check max month quantity
-			if (!isStartDate && maxMonthQuantity > 0) {
-				const monthQuantity = eachMonthOfInterval({
-					start: newStartDate,
-					end: newEndDate
-				}).length;
+			if (maxMonthQuantity > 0) {
+				const monthQuantity = getMonthQuantity(newStartDate, newEndDate);
 
 				if (monthQuantity > maxMonthQuantity) {
 					if (timeLineInvalid) {
@@ -525,34 +660,53 @@ export const DateRange = props => {
 					}
 				}
 			}
-
-			// Update new value end type change
-			setValue({ startDate: newStartDate, endDate: newEndDate });
-			setIsStartDate(!isStartDate);
 		} else {
 			// New value
-			let newStartDate = isStartDateProp
-				? startOfYear(newValue)
-				: value.startDate;
-			let newEndDate = isStartDateProp ? value.endDate : endOfYear(newValue);
+			newStartDate = isStartDateProp ? startOfYear(newValue) : value.startDate;
+			newEndDate = isStartDateProp ? value.endDate : endOfYear(newValue);
 
 			// Check min and max date
 			if (minDate && newStartDate < startOfYear(minDate)) return;
 			if (maxDate && newEndDate > endOfYear(maxDate)) return;
 
-			// Check max year quantity
-			if (maxYearQuantity > 0) {
-				if (isStartDateProp) {
-					newEndDate = addYears(newStartDate, maxYearQuantity - 1);
-					newEndDate = endOfYear(newEndDate);
-				} else {
-					newStartDate = subYears(newEndDate, maxYearQuantity - 1);
-					newStartDate = startOfYear(newStartDate);
-				}
+			// Check min year quantity
+			if (minYearQuantity > 0) {
+				const yearQuantity = getYearQuantity(newStartDate, newEndDate);
+
+				if (yearQuantity < minYearQuantity)
+					if (isStartDateProp) newEndDate = addYears(newEndDate, 1);
+					else newStartDate = subYears(newStartDate, 1);
 			}
 
-			// Update new value
-			setValue({ startDate: newStartDate, endDate: newEndDate });
+			// Check max year quantity
+			if (maxYearQuantity > 0) {
+				const yearQuantity = getYearQuantity(newStartDate, newEndDate);
+
+				if (yearQuantity > maxYearQuantity) {
+					if (isStartDateProp) newEndDate = subYears(newEndDate, 1);
+					else newStartDate = addYears(newStartDate, 1);
+				}
+			}
+		}
+
+		return { startDate: newStartDate, endDate: newEndDate };
+	};
+
+	const handleChangePreviewValue = params => {
+		const newValue = checkNewValue(params);
+		if (newValue) setPreviewValue(newValue);
+	};
+
+	const handleRemovePreviewValue = () => {
+		setPreviewValue(null);
+	};
+
+	const handleChangeValue = (params, isStartDateProp) => {
+		const newValue = checkNewValue(params, isStartDateProp);
+		if (newValue) {
+			setValue(newValue);
+			setIsStartDate(!isStartDate);
+			setPreviewValue(null);
 		}
 	};
 
@@ -621,6 +775,8 @@ export const DateRange = props => {
 				weeks={weeks}
 				weekdays={Object.values(weekdays)}
 				handleChangeValue={handleChangeValue}
+				handleChangePreviewValue={handleChangePreviewValue}
+				handleRemovePreviewValue={handleRemovePreviewValue}
 				handleChangeCalendar={handleChangeCalendar}
 			/>
 		</div>

@@ -1,4 +1,4 @@
-import { format, getISOWeek, getYear } from 'date-fns';
+import { format, getISOWeek, getISOWeekYear, getYear } from 'date-fns';
 
 export const DateRangeControl = props => {
 	const { value, type, setShowWrapper } = props;
@@ -14,10 +14,9 @@ export const DateRangeControl = props => {
 	const weekValueJSX = (
 		<div className="date-range-control-value">
 			{'Tuần '}
-			{getISOWeek(value.startDate, { weekStartsOn: 1 })}.
-			{getYear(value.startDate)}
+			{getISOWeek(value.startDate)}.{getISOWeekYear(value.startDate)}
 			{' đến tuần '}
-			{getISOWeek(value.endDate, { weekStartsOn: 1 })}.{getYear(value.endDate)}
+			{getISOWeek(value.endDate)}.{getISOWeekYear(value.endDate)}
 		</div>
 	);
 

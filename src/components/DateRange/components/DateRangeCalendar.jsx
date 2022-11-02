@@ -1,7 +1,15 @@
 import { isSameDay } from 'date-fns';
 
 export const DateRangeCalendar = props => {
-	const { type, weeks, weekdays, calendar, handleChangeValue } = props;
+	const {
+		type,
+		weeks,
+		weekdays,
+		calendar,
+		handleChangePreviewValue,
+		handleRemovePreviewValue,
+		handleChangeValue
+	} = props;
 
 	const className =
 		type === 0
@@ -19,7 +27,9 @@ export const DateRangeCalendar = props => {
 					{weeks.map((item, id) => (
 						<div
 							key={id}
-							className={`date-range-calendar-weeks-item ${item.type}`}
+							className={`date-range-calendar-weeks-item${item.type}`}
+							onMouseEnter={() => handleChangePreviewValue(item.value)}
+							onMouseLeave={() => handleRemovePreviewValue()}
 							onClick={() => handleChangeValue(item.value)}
 						>
 							{item.title}
@@ -39,29 +49,33 @@ export const DateRangeCalendar = props => {
 					))}
 				</div>
 
-				{calendar.map((item, id) => {
-					let className =
-						id % 7 === 0
-							? `date-range-calendar-day start-week ${item.type}`
-							: (id + 1) % 7 === 0
-							? `date-range-calendar-day end-week ${item.type}`
-							: `date-range-calendar-day ${item.type}`;
+				<div className="date-range-calendar-days-items">
+					{calendar.map((item, id) => {
+						let className =
+							id % 7 === 0
+								? `date-range-calendar-day start-week${item.type}`
+								: (id + 1) % 7 === 0
+								? `date-range-calendar-day end-week${item.type}`
+								: `date-range-calendar-day${item.type}`;
 
-					return (
-						<div key={item.value} className={className}>
-							<div
-								className="date-range-calendar-day-value"
-								onClick={() => handleChangeValue(item.value)}
-							>
-								{isSameDay(item.value, new Date()) && (
-									<div className="date-range-now" />
-								)}
+						return (
+							<div key={item.value} className={className}>
+								<div
+									className="date-range-calendar-day-value"
+									onMouseEnter={() => handleChangePreviewValue(item.value)}
+									onMouseLeave={() => handleRemovePreviewValue()}
+									onClick={() => handleChangeValue(item.value)}
+								>
+									{isSameDay(item.value, new Date()) && (
+										<div className="date-range-now" />
+									)}
 
-								{item.value.getDate()}
+									{item.value.getDate()}
+								</div>
 							</div>
-						</div>
-					);
-				})}
+						);
+					})}
+				</div>
 			</div>
 		</div>
 	);
