@@ -53,12 +53,6 @@
 		}
 	}
 
-	:not(.date-range-header).date-range-control {
-		border: 1px solid #d9d6d6;
-		border-top-left-radius: 4px !important;
-		border-top-right-radius: 4px !important;
-	}
-
 	.date-range-control {
 		position: relative;
 		border-radius: 0 0 4px 4px;
@@ -80,6 +74,12 @@
 			height: 20px;
 			background: url('./images/calendar.png');
 			background-size: contain;
+		}
+
+		&:nth-child(1) {
+			border: 1px solid #d9d6d6;
+			border-top-left-radius: 4px !important;
+			border-top-right-radius: 4px !important;
 		}
 	}
 
@@ -755,7 +755,7 @@
 			}
 		}
 
-		&.single {
+		&:nth-child(1) {
 			top: 0;
 			border-top-left-radius: 4px !important;
 			border-top-right-radius: 4px !important;

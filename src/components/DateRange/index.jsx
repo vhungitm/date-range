@@ -786,7 +786,6 @@ export const DateRange = props => {
 				calendarDate={calendarDate}
 				months={months}
 				weeks={weeks}
-				singleChild={!showHeader && !showControl}
 				weekdays={Object.values(weekdays)}
 				handleChangeValue={handleChangeValue}
 				handleChangePreviewValue={handleChangePreviewValue}

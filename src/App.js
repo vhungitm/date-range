@@ -17,7 +17,7 @@ const App = () => {
 				value={value}
 				showHeader={false}
 				showControl={false}
-				alwaysShowWrapper={false}
+				alwaysShowWrapper={true}
 				handleChangeValue={setValue}
 				type={type}
 				handleChangeType={setType}

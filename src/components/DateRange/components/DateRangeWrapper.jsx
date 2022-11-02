@@ -12,7 +12,6 @@ export const DateRangeWrapper = props => {
 		months,
 		weeks,
 		weekdays,
-		singleChild = false,
 		handleChangeValue,
 		handleChangePreviewValue,
 		handleRemovePreviewValue,
@@ -50,7 +49,6 @@ export const DateRangeWrapper = props => {
 	);
 
 	let className = 'date-range-wrapper';
-	singleChild && (className += ' single');
 
 	return (
 		<div className={className}>
