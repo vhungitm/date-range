@@ -20,8 +20,9 @@
 			border: 1px solid #d9d6d6;
 			border-left: 0;
 
-			font-size: 16px;
+			background: white;
 			color: #a19f9f;
+			font-size: 16px;
 
 			cursor: pointer;
 
@@ -52,11 +53,17 @@
 		}
 	}
 
+	:not(.date-range-header).date-range-control {
+		border: 1px solid #d9d6d6;
+		border-top-left-radius: 4px !important;
+		border-top-right-radius: 4px !important;
+	}
+
 	.date-range-control {
 		position: relative;
 		border-radius: 0 0 4px 4px;
 		border: 1px solid #d9d6d6;
-		border-top: 0;
+		border-top: unset;
 		padding: 8px 16px;
 		cursor: pointer;
 
@@ -747,6 +754,12 @@
 				}
 			}
 		}
+
+		&.single {
+			top: 0;
+			border-top-left-radius: 4px !important;
+			border-top-right-radius: 4px !important;
+		}
 	}
 
 	&.show {
@@ -760,10 +773,11 @@
 		}
 
 		.date-range-control {
-			border: 1px solid #108fcf;
+			border-color: #108fcf;
 			border-bottom: unset;
-			border-top: unset;
 			border-radius: 0;
+
+			background: white;
 		}
 
 		.date-range-wrapper {

@@ -53,6 +53,9 @@ export const DateRange = props => {
 		type: typeProp,
 		handleChangeType: handleChangeTypeProp,
 		weekdays: weekdaysProp,
+		showHeader = true,
+		showControl = true,
+		alwaysShowWrapper,
 		minDate,
 		maxDate,
 		minDayQuantity,
@@ -750,22 +753,32 @@ export const DateRange = props => {
 		}
 	};
 
+	let dateRangeClassName =
+		!showHeader && !showControl
+			? 'itm-date-range show'
+			: alwaysShowWrapper
+			? 'itm-date-range show'
+			: showWrapper
+			? 'itm-date-range show'
+			: 'itm-date-range';
+
 	return (
-		<div
-			ref={ref}
-			className={showWrapper ? 'itm-date-range show' : 'itm-date-range'}
-		>
-			<DateRangeHeader
-				types={types}
-				type={type}
-				handleChangeType={handleChangeType}
-			/>
-			<DateRangeControl
-				type={type}
-				value={value}
-				showWrapper={showWrapper}
-				setShowWrapper={() => setShowWrapper(!showWrapper)}
-			/>
+		<div ref={ref} className={dateRangeClassName}>
+			{showHeader && (
+				<DateRangeHeader
+					types={types}
+					type={type}
+					handleChangeType={handleChangeType}
+				/>
+			)}
+			{showControl && (
+				<DateRangeControl
+					type={type}
+					value={value}
+					showWrapper={showWrapper}
+					setShowWrapper={() => setShowWrapper(!showWrapper)}
+				/>
+			)}
 			<DateRangeWrapper
 				type={type}
 				value={value}
@@ -773,6 +786,7 @@ export const DateRange = props => {
 				calendarDate={calendarDate}
 				months={months}
 				weeks={weeks}
+				singleChild={!showHeader && !showControl}
 				weekdays={Object.values(weekdays)}
 				handleChangeValue={handleChangeValue}
 				handleChangePreviewValue={handleChangePreviewValue}
