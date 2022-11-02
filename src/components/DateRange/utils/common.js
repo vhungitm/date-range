@@ -1,6 +1,7 @@
 import {
 	eachDayOfInterval,
 	endOfWeek,
+	format,
 	isAfter,
 	isBefore,
 	isSameDay,
@@ -32,3 +33,5 @@ export const getMonthQuantity = (startDate, endDate) =>
 	eachMonthOfInterval({ start: startDate, end: endDate }).length;
 export const getYearQuantity = (startDate, endDate) =>
 	eachYearOfInterval({ start: startDate, end: endDate }).length;
+
+export const formatVNDate = date => format(date, 'dd/MM/yyyy');
