@@ -756,11 +756,14 @@
 			}
 		}
 
-		&:nth-child(1),
-		&:nth-child(2) {
+		&:nth-child(1) {
 			top: 0;
 			border-top-left-radius: 4px !important;
 			border-top-right-radius: 4px !important;
+		}
+
+		&:nth-child(2) {
+			border-top: unset !important;
 		}
 	}
 
